@@ -1,7 +1,10 @@
-FROM akaunting/akaunting
+# Use official Akaunting image
+FROM akaunting/akaunting:latest
 
+# Set working directory
 WORKDIR /var/www/html
 
+# Environment configuration
 ENV APP_NAME=Akaunting \
     APP_ENV=production \
     APP_DEBUG=false \
@@ -21,13 +24,20 @@ ENV APP_NAME=Akaunting \
     DB_OPTIONS='--client_encoding=UTF8' \
     APACHE_DOCUMENT_ROOT=/var/www/html/public
 
-# Update Apache config to serve from /public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf && \
+# Enable Apache rewrite module and update config to serve from /public
+RUN a2enmod rewrite && \
+    sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf && \
     sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
 
-# Cache config for production
+# Laravel config optimization
 RUN php artisan config:clear && php artisan config:cache
 
+# Healthcheck to keep container alive
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost || exit 1
+
+# Expose Apache port
 EXPOSE 80
 
-CMD ["apache2-foreground"]
+# Start Apache in foreground
+ENTRYPOINT ["apache2-foreground"]
