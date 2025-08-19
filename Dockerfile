@@ -1,25 +1,20 @@
-version: '3.8'
+FROM akaunting/akaunting:latest
 
-services:
-  akaunting:
-    image: akaunting/akaunting:latest
-    container_name: akaunting_app
-    ports:
-      - "8080:80"
-   ENV APP_NAME=Akaunting \
+# Set working directory
+WORKDIR /var/www/html
+
+# Set environment variables for MySQL
+ENV DB_CONNECTION=mysql \
+    DB_HOST=mime-akaunting-db-mime-akaunting-db.d.aivencloud.com \
+    DB_PORT=19654 \
+    DB_DATABASE=defaultdb \
+    DB_USERNAME=avnadmin \
+    DB_PASSWORD=AVNS_PDQskxj_JtWnNBYY-bR \
+    DB_SSLMODE=require \
     APP_ENV=production \
     APP_DEBUG=false \
-    APP_KEY=base64:LOgi/XY/9KtOKt9HcpSlM+MBHYjXlRYWdeSpUOOqffw= \
-    APP_URL=https://scared-ketty-mime-ventures-llc-4ad6d461.koyeb.app \
-    APP_INSTALLED=true \
-    CACHE_DRIVER=file \
-    QUEUE_CONNECTION=sync \
-    SESSION_DRIVER=cookie \
-    DB_CONNECTION=pgsql \
-    DB_HOST=ep-muddy-unit-abqx4aqs-pooler.eu-west-2.aws.neon.tech \
-    DB_PORT=5432 \
-    DB_DATABASE=neondb \
-    DB_USERNAME=neondb_owner \
-    DB_PASSWORD=npg_hQpPOi9KM0vC \
-    DB_SSLMODE=require \
-    DB_OPTIONS='--client_encoding=UTF8'
+    APP_KEY=base64:XwbL0pOfakjTXf2DVa8l0MuP0xKldz+ceXTLbm0dKIg= \
+    APP_URL=https://scared-ketty-mime-ventures-llc-4ad6d461.koyeb.app
+
+# Clear and cache configuration
+RUN php artisan config:clear && php artisan config:cache
