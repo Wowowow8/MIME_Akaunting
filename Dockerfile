@@ -1,4 +1,4 @@
-FROM akaunting/akaunting:latest
+FROM akaunting/akaunting
 
 WORKDIR /var/www/html
 
