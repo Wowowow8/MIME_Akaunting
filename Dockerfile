@@ -1,46 +1,22 @@
-FROM php:8.2-apache
+# Base image from Akaunting
+FROM akaunting/akaunting:latest
 
-# Set working directory
-WORKDIR /var/www/html
+# Set ServerName to eliminate Apache FQDN warning
+RUN echo "ServerName scared-ketty-mime-ventures-llc-4ad6d461.koyeb.app" >> /etc/apache2/apache2.conf
 
-# Install required PHP extensions
-RUN docker-php-ext-install pdo pdo_mysql
+# Optional: Set timezone (adjust as needed)
+ENV TZ=Asia/Riyadh
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
-# Copy your app files into the container
-COPY . /var/www/html
-
-# Install Composer and Laravel dependencies
-RUN apt-get update && apt-get install -y unzip zip git curl \
-  && curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer \
-  && composer install --no-interaction --prefer-dist --optimize-autoloader
-
-# Set permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
-
-# Copy Apache virtual host config
-RUN echo "<VirtualHost *:80>
-    DocumentRoot /var/www/html/public
-    <Directory /var/www/html/public>
-        AllowOverride All
-        Require all granted
-    </Directory>
-</VirtualHost>" > /etc/apache2/sites-available/000-default.conf
-
-# Enable Apache mod_rewrite
+# Optional: Enable Apache modules if needed
 RUN a2enmod rewrite
 
-# Copy your .env variables
-ENV DB_CONNECTION=mysql \
-    DB_HOST=mime-akaunting-db-mime-akaunting-db.d.aivencloud.com \
-    DB_PORT=19654 \
-    DB_DATABASE=defaultdb \
-    DB_USERNAME=avnadmin \
-    DB_PASSWORD=AVNS_PDQskxj_JtWnNBYY-bR \
-    DB_SSLMODE=REQUIRED
+# Optional: Add healthcheck for container monitoring
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost || exit 1
 
-# Laravel config and cache
-RUN php artisan config:clear && php artisan config:cache
-
+# Expose HTTP port
 EXPOSE 80
 
+# Start Apache in foreground
 CMD ["apache2-foreground"]
