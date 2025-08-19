@@ -1,10 +1,8 @@
-# Use official Akaunting image
-FROM akaunting/akaunting
+FROM akaunting/akaunting:latest
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Environment configuration
+# Laravel + DB environment
 ENV APP_NAME=Akaunting \
     APP_ENV=production \
     APP_DEBUG=false \
@@ -21,10 +19,12 @@ ENV APP_NAME=Akaunting \
     DB_USERNAME=neondb_owner \
     DB_PASSWORD=npg_hQpPOi9KM0vC \
     DB_SSLMODE=require \
-    DB_OPTIONS='--client_encoding=UTF8' \
-    APACHE_DOCUMENT_ROOT=/var/www/html/public
+    DB_OPTIONS='--client_encoding=UTF8'
 
-# Enable Apache rewrite module and update config to serve from /public
+# Set Apache to serve from Laravel's public directory
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+
+# Enable rewrite module and update Apache config
 RUN a2enmod rewrite && \
     sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf && \
     sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
@@ -36,8 +36,6 @@ RUN php artisan config:clear && php artisan config:cache
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD curl -f http://localhost || exit 1
 
-# Expose Apache port
 EXPOSE 80
 
-# Start Apache in foreground
 ENTRYPOINT ["apache2-foreground"]
