@@ -1,5 +1,5 @@
 # Use official Akaunting image
-FROM akaunting/akaunting:latest
+FROM akaunting/akaunting
 
 # Set working directory
 WORKDIR /var/www/html
