@@ -1,11 +1,10 @@
 FROM akaunting/akaunting:latest
 
-# Optional: if you want to run install scripts automatically
-# ENV APP_KEY=base64:xxx
-# ENV APP_INSTALLED=true
+# Optionally set working directory
+WORKDIR /var/www/html
+
+# You can copy your custom .env file if needed
 # COPY .env /var/www/html/.env
 
-# Run artisan commands (optional)
-# RUN php artisan migrate --force
-
+# Expose default port
 EXPOSE 80
