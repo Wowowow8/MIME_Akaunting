@@ -4,7 +4,8 @@ FROM akaunting/akaunting:latest
 WORKDIR /var/www/html
 
 # Environment Variables
-ENV APP_NAME=Akaunting \
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
+    APP_NAME=Akaunting \
     APP_ENV=production \
     APP_DEBUG=false \
     APP_KEY=base64:LOgi/XY/9KtOKt9HcpSlM+MBHYjXlRYWdeSpUOOqffw= \
@@ -27,3 +28,6 @@ RUN php artisan config:clear && php artisan config:cache
 
 # Start Apache in foreground
 CMD ["apache2-foreground"]
+
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf && \
+    sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
