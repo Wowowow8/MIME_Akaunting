@@ -1,11 +1,8 @@
 FROM akaunting/akaunting:latest
 
-# Set working directory
 WORKDIR /var/www/html
 
-# Environment Variables
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
-    APP_NAME=Akaunting \
+ENV APP_NAME=Akaunting \
     APP_ENV=production \
     APP_DEBUG=false \
     APP_KEY=base64:LOgi/XY/9KtOKt9HcpSlM+MBHYjXlRYWdeSpUOOqffw= \
@@ -21,13 +18,16 @@ ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
     DB_USERNAME=neondb_owner \
     DB_PASSWORD=npg_hQpPOi9KM0vC \
     DB_SSLMODE=require \
-    DB_OPTIONS='--client_encoding=UTF8'
+    DB_OPTIONS='--client_encoding=UTF8' \
+    APACHE_DOCUMENT_ROOT=/var/www/html/public
 
-# Rebuild config cache (optional but safer for production)
-RUN php artisan config:clear && php artisan config:cache
-
-# Start Apache in foreground
-CMD ["apache2-foreground"]
-
+# Update Apache config to serve from /public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf && \
     sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# Cache config for production
+RUN php artisan config:clear && php artisan config:cache
+
+EXPOSE 80
+
+CMD ["apache2-foreground"]
