@@ -1,9 +1,12 @@
-FROM akaunting/akaunting:latest
+version: '3.8'
 
-WORKDIR /var/www/html/var/www/html/public
-
-# Laravel + DB environment
-ENV APP_NAME=Akaunting \
+services:
+  akaunting:
+    image: akaunting/akaunting:latest
+    container_name: akaunting_app
+    ports:
+      - "8080:80"
+   ENV APP_NAME=Akaunting \
     APP_ENV=production \
     APP_DEBUG=false \
     APP_KEY=base64:LOgi/XY/9KtOKt9HcpSlM+MBHYjXlRYWdeSpUOOqffw= \
@@ -20,19 +23,3 @@ ENV APP_NAME=Akaunting \
     DB_PASSWORD=npg_hQpPOi9KM0vC \
     DB_SSLMODE=require \
     DB_OPTIONS='--client_encoding=UTF8'
-
-# Enable rewrite module and update Apache config
-RUN a2enmod rewrite && \
-    sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf && \
-    sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
-
-# Laravel config optimization
-RUN php artisan config:clear && php artisan config:cache
-
-# Healthcheck to keep container alive
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost || exit 1
-
-EXPOSE 80
-
-ENTRYPOINT ["apache2-foreground"]
