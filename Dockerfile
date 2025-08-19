@@ -1,6 +1,6 @@
 FROM akaunting/akaunting:latest
 
-WORKDIR /var/www/html
+WORKDIR /var/www/html/var/www/html/public
 
 # Laravel + DB environment
 ENV APP_NAME=Akaunting \
@@ -20,9 +20,6 @@ ENV APP_NAME=Akaunting \
     DB_PASSWORD=npg_hQpPOi9KM0vC \
     DB_SSLMODE=require \
     DB_OPTIONS='--client_encoding=UTF8'
-
-# Set Apache to serve from Laravel's public directory
-ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
 # Enable rewrite module and update Apache config
 RUN a2enmod rewrite && \
